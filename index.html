@@ -56,8 +56,8 @@
 
         // Ignora a primeira linha (cabeçalho)
         dados.slice(1).forEach((linha, index) => {
-          const titulo = linha[0] || "Sem título";
-          const resumo = linha[1] || "";
+          const titulo = linha[1] || "Sem título";
+          const resumo = linha[2] || "";
 
           const card = document.createElement("a");
           card.className = "card";
@@ -74,4 +74,5 @@
       </script>
 </body>
 </html>
+
 
