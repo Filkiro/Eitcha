@@ -3,95 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nossos Textos</title>
+  <title>Texto</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header class="header">
-    <h1>💌 Para o Amor da Minha Vida 💌</h1>
-    <p>Cada palavra escrita é um pedacinho da minha alma que eu sempre propus a te entregar!</p>
-  </header>
-
-  <main class="container">
-    <div class="grid">
-
-      <a href="html/aniversario1.html" class="card">
-        <h2>1° Aniversário</h2>
-        <p>EIII feliz aniversário de namoro meu bem...</p>
-      </a>        
-      <a href="html/aniversario2.html" class="card">
-        <h2>2° Aniversário</h2>
-        <p>Eiiii, segundo mês hein, a gente...</p>
-      </a>
-        
-      <a href="html/aniversario3.html" class="card">
-        <h2>3° Aniversário (ou quase isso)</h2>
-        <p>eu estou definitivamente extremamente apaixonado...</p>
-      </a>
-        
-      <a href="html/aniversario4.html" class="card">
-        <h2>4° Aniversário</h2>
-        <p>AAAAA, tamo no 4° mês meu amor, finalmente...</p>
-      </a>
-        
-      <a href="html/aniversario5.html" class="card">
-        <h2>5° Aniversário</h2>
-        <p>oh meu bem, 5° mês já, finalmente nehhh...</p>
-      </a>
-        
-      <a href="html/aniversario6.html" class="card">
-        <h2>6° Aniversário</h2>
-        <p>Oh meu bemkkk, primeiro...</p>
-      </a>
-        
-      <a href="html/aniversario7.html" class="card">
-        <h2>7° Aniversário</h2>
-        <p>oh meu bem, mal consegui preparar nada...</p>
-      </a>
-        
-      <a href="html/aniversario8.html" class="card">
-        <h2>8° Aniversário</h2>
-        <p>Bom, cá estamos meu amor, 8 meses...</p>
-      </a>
-        
-      <a href="html/aniversario9.html" class="card">
-        <h2>9° Aniversário</h2>
-        <p>eitaaa, 9 meses meu amor, lindos 9 meses...</p>
-      </a>
-        
-      <a href="html/aniversario10.html" class="card highlight">
-        <h2 id="dez"><b>10° Aniversário</b></h2>
-        <p>Meu amor, finalmente atingimos 10 meses...</p>
-      </a>
-        
-      <a href="html/texto1712.html" class="card">
-        <h2>Textinho - Dia 17/12/24</h2>
-        <p>te amo como se fosse o dia que te conheci...</p>
-      </a>
-
-
-      <a href="html/texto2002.html" class="card">
-        <h2>Textinho - Dia 20/02/25</h2>
-        <p>oh meu amor KKKKK, bem, olha eu quem tenho q agradecer...</p>
-      </a>
-
-      <a href="html/Texto2306.html" class="card">
-        <h2>Textinho - Dia 23/06/25</h2>
-        <p>mozin, eu te amo demais viu, te amo em cada detalhe seu...</p>
-      </a>
-    </div>
-
-<div class="music-box">
-  <p class="cit">
-    E a nossa musica eterna, que eu tanto amo ouvir com você do meu lado ❤️
-  </p>
-  <iframe width="240" height="240" src="https://www.youtube.com/embed/_Paw8ZRSlqY?autoplay=1&loop=1&playlist=_Paw8ZRSlqY" frameborder="0"></iframe>
-</div>
-
+  <main class="text-page" id="conteudo">
+    <!-- Conteúdo carregado via script -->
   </main>
 
-  <footer class="footer">
-    <p>Feito com ❤️ só para você evy!.</p>
-  </footer>
+  <script>
+  async function carregarTexto() {
+    const params = new URLSearchParams(window.location.search);
+    const id = parseInt(params.get("id") || "0", 10);
+
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQqfAsgAVNog4YfI1rx104HGmPvy5EX6xGc9Jt8hhprLght6AC4qkEpXp5X3uDIgECTo1cTMXM50mZ_/pub?output=csv";
+    const res = await fetch(csvUrl);
+    const csvText = await res.text();
+    const linhas = csvText.split("\n").filter(l => l.trim() !== "");
+    const linha = linhas[id + 1]; // +1 para pular o cabeçalho
+
+    if (!linha) {
+      document.getElementById("conteudo").innerHTML = `<p>Texto não encontrado.</p>`;
+      return;
+    }
+
+    const [titulo, resumo, ...resto] = linha.split(",");
+    const textoCompleto = resto.join(",");
+
+    const container = document.getElementById("conteudo");
+    container.innerHTML = `
+      <a href="index.html" class="back">← Voltar</a>
+      <h1>${titulo}</h1>
+      <p>${textoCompleto.replace(/\n/g, "<br>")}</p>
+    `;
+  }
+
+  carregarTexto();
+  </script>
 </body>
 </html>
