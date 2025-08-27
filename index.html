@@ -29,23 +29,31 @@
     <p>Feito com ❤️ só para você evy!.</p>
   </footer>
 
-  <script>
+<script>
 async function carregarCards() {
   const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQqfAsgAVNog4YfI1rx104HGmPvy5EX6xGc9Jt8hhprLght6AC4qkEpXp5X3uDIgECTo1cTMXM50mZ_/pub?output=csv";
 
-  // Função para separar CSV respeitando aspas
+  // Função para separar CSV respeitando vírgulas dentro de aspas
   function parseCSVRow(row) {
-    const regex = /(".*?"|[^",\s]+)(?=\s*,|\s*$)/g;
-    const resultado = [];
-    let match;
-    while ((match = regex.exec(row))) {
-      let valor = match[1];
-      if (valor.startsWith('"') && valor.endsWith('"')) {
-        valor = valor.slice(1, -1);
+    const result = [];
+    let current = '';
+    let dentroAspas = false;
+
+    for (let i = 0; i < row.length; i++) {
+      const char = row[i];
+
+      if (char === '"') {
+        dentroAspas = !dentroAspas; // inverte estado
+      } else if (char === ',' && !dentroAspas) {
+        result.push(current);
+        current = '';
+      } else {
+        current += char;
       }
-      resultado.push(valor);
     }
-    return resultado;
+    result.push(current);
+    // Remove aspas externas
+    return result.map(v => v.replace(/^"(.*)"$/,'$1'));
   }
 
   try {
@@ -56,7 +64,7 @@ async function carregarCards() {
     const linhas = csvText.split("\n").filter(l => l.trim() !== "");
     const container = document.getElementById("cards-container");
 
-    // Primeiro, adiciona o 10° card especial manualmente
+    // Card especial do 10° mês
     const cardEspecial = document.createElement("a");
     cardEspecial.href = "html/aniversario10.html";
     cardEspecial.className = "card highlight";
@@ -66,9 +74,9 @@ async function carregarCards() {
     `;
     container.appendChild(cardEspecial);
 
-    // Agora adiciona os demais cards do CSV
+    // Adiciona cards do CSV
     linhas.slice(1).forEach((linha, index) => {
-      if (index === 9) return; // Pula o 10° do CSV
+      if (index === 9) return; // Pula o 10° para não duplicar
 
       const colunas = parseCSVRow(linha);
       const timestamp = colunas[0] || "";
@@ -89,9 +97,10 @@ async function carregarCards() {
 }
 
 carregarCards();
-  </script>
+         </script>
 </body>
 </html>
+
 
 
 
