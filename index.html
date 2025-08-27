@@ -55,8 +55,8 @@
         if (index === 9) return; // Pula o 10° do CSV para não duplicar
         // Função simples para separar só na primeira vírgula
         const colunas = linha.split(/,(.+)/);
-        const titulo = colunas[0] || "Sem título";
-        const resumo = colunas[1] || "";
+        const titulo = colunas[1] || "Sem título";
+        const resumo = colunas[2] || "";
 
         const card = document.createElement("a");
         card.className = "card";
@@ -74,6 +74,7 @@
     </script>
 </body>
 </html>
+
 
 
 
