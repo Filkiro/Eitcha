@@ -20,7 +20,52 @@ async function carregarTexto() {
   const res = await fetch(csvUrl);
   const csvText = await res.text();
 
-  const linhas = csvText.split("\n").filter(l => l.trim() !== "");
+  // Função para separar linhas corretamente, respeitando quebras dentro de aspas
+  function parseCSVRows(csvText) {
+    const rows = [];
+    let current = '';
+    let dentroAspas = false;
+
+    for (let i = 0; i < csvText.length; i++) {
+      const char = csvText[i];
+
+      if (char === '"') {
+        dentroAspas = !dentroAspas;
+        current += char;
+      } else if (char === '\n' && !dentroAspas) {
+        rows.push(current);
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    if (current) rows.push(current);
+    return rows;
+  }
+
+  // Função para separar colunas de uma linha, respeitando vírgulas dentro de aspas
+  function parseCSVColumns(row) {
+    const cols = [];
+    let current = '';
+    let dentroAspas = false;
+
+    for (let i = 0; i < row.length; i++) {
+      const char = row[i];
+
+      if (char === '"') {
+        dentroAspas = !dentroAspas;
+      } else if (char === ',' && !dentroAspas) {
+        cols.push(current);
+        current = '';
+        continue;
+      }
+      current += char;
+    }
+    cols.push(current);
+    return cols.map(v => v.replace(/^"(.*)"$/,'$1')); // remove aspas externas
+  }
+
+  const linhas = parseCSVRows(csvText).filter(l => l.trim() !== "");
   const linha = linhas[id + 1]; // +1 para pular o cabeçalho
 
   if (!linha) {
@@ -28,18 +73,7 @@ async function carregarTexto() {
     return;
   }
 
-  // Função para tratar vírgulas dentro de aspas
-  function parseCSVLine(linha) {
-    const regex = /(?:\"([^\"]*)\")|([^,]+)/g;
-    const resultado = [];
-    let match;
-    while ((match = regex.exec(linha)) !== null) {
-      resultado.push(match[1] !== undefined ? match[1] : match[2]);
-    }
-    return resultado;
-  }
-
-  const colunas = parseCSVLine(linha);
+  const colunas = parseCSVColumns(linha);
   const titulo = colunas[1] || "Sem título";
   const textoCompleto = colunas[3] || "";
 
@@ -52,6 +86,6 @@ async function carregarTexto() {
 }
 
 carregarTexto();
-</script>
+                    </script>
 </body>
 </html>
