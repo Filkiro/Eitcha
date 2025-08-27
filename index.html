@@ -29,28 +29,49 @@
     <p>Feito com ❤️ só para você evy!.</p>
   </footer>
 
-  <script>
-  async function carregarCards() {
-    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQqfAsgAVNog4YfI1rx104HGmPvy5EX6xGc9Jt8hhprLght6AC4qkEpXp5X3uDIgECTo1cTMXM50mZ_/pub?output=csv";
-    const res = await fetch(csvUrl);
-    const csvText = await res.text();
+ <script>
+    function parseCSV(text) {
+      const linhas = text.split("\n").filter(l => l.trim() !== "");
+      const dados = linhas.map(linha => {
+        const regex = /(?:\"([^\"]*)\")|([^,]+)/g;
+        const resultado = [];
+        let match;
+        while ((match = regex.exec(linha)) !== null) {
+          resultado.push(match[1] !== undefined ? match[1] : match[2]);
+        }
+        return resultado;
+      });
+      return dados;
+    }
 
-    const linhas = csvText.split("\n").filter(l => l.trim() !== "");
-    const container = document.getElementById("cards-container");
+    async function carregarCards() {
+      const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQqfAsgAVNog4YfI1rx104HGmPvy5EX6xGc9Jt8hhprLght6AC4qkEpXp5X3uDIgECTo1cTMXM50mZ_/pub?output=csv";
+      try {
+        const res = await fetch(csvUrl);
+        if (!res.ok) throw new Error("Erro ao carregar CSV: " + res.status);
+        const csvText = await res.text();
 
-    linhas.slice(1).forEach((linha, index) => {
-      const [titulo, resumo] = linha.split(/\,(.+)/); // separa só o primeiro vírgula
-      if (!titulo) return;
+        const dados = parseCSV(csvText);
+        const container = document.getElementById("cards-container");
 
-      const card = document.createElement("a");
-      card.className = "card";
-      card.href = `texto.html?id=${index}`;
-      card.innerHTML = `<h2>${titulo}</h2><p>${resumo}</p>`;
-      container.appendChild(card);
-    });
-  }
+        // Ignora a primeira linha (cabeçalho)
+        dados.slice(1).forEach((linha, index) => {
+          const titulo = linha[0] || "Sem título";
+          const resumo = linha[1] || "";
 
-  carregarCards();
-  </script>
+          const card = document.createElement("a");
+          card.className = "card";
+          card.href = `texto.html?id=${index}`;
+          card.innerHTML = `<h2>${titulo}</h2><p>${resumo}</p>`; // mostra só título e resumo
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    carregarCards();
+      </script>
 </body>
 </html>
+
