@@ -33,9 +33,32 @@
 async function carregarCards() {
   const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQqfAsgAVNog4YfI1rx104HGmPvy5EX6xGc9Jt8hhprLght6AC4qkEpXp5X3uDIgECTo1cTMXM50mZ_/pub?output=csv";
 
-  // Função para separar CSV respeitando vírgulas dentro de aspas
-  function parseCSVRow(row) {
-    const result = [];
+  // Função para separar CSV em linhas corretas, respeitando quebras dentro de aspas
+  function parseCSVRows(csvText) {
+    const rows = [];
+    let current = '';
+    let dentroAspas = false;
+
+    for (let i = 0; i < csvText.length; i++) {
+      const char = csvText[i];
+
+      if (char === '"') {
+        dentroAspas = !dentroAspas;
+        current += char;
+      } else if (char === '\n' && !dentroAspas) {
+        rows.push(current);
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    if (current) rows.push(current);
+    return rows;
+  }
+
+  // Função para separar colunas de uma linha, respeitando vírgulas dentro de aspas
+  function parseCSVColumns(row) {
+    const cols = [];
     let current = '';
     let dentroAspas = false;
 
@@ -43,17 +66,16 @@ async function carregarCards() {
       const char = row[i];
 
       if (char === '"') {
-        dentroAspas = !dentroAspas; // inverte estado
+        dentroAspas = !dentroAspas;
       } else if (char === ',' && !dentroAspas) {
-        result.push(current);
+        cols.push(current);
         current = '';
-      } else {
-        current += char;
+        continue;
       }
+      current += char;
     }
-    result.push(current);
-    // Remove aspas externas
-    return result.map(v => v.replace(/^"(.*)"$/,'$1'));
+    cols.push(current);
+    return cols.map(v => v.replace(/^"(.*)"$/,'$1')); // remove aspas externas
   }
 
   try {
@@ -61,7 +83,7 @@ async function carregarCards() {
     if (!res.ok) throw new Error("Erro ao carregar CSV: " + res.status);
     const csvText = await res.text();
 
-    const linhas = csvText.split("\n").filter(l => l.trim() !== "");
+    const linhas = parseCSVRows(csvText).filter(l => l.trim() !== "");
     const container = document.getElementById("cards-container");
 
     // Card especial do 10° mês
@@ -78,11 +100,9 @@ async function carregarCards() {
     linhas.slice(1).forEach((linha, index) => {
       if (index === 9) return; // Pula o 10° para não duplicar
 
-      const colunas = parseCSVRow(linha);
-      const timestamp = colunas[0] || "";
+      const colunas = parseCSVColumns(linha);
       const titulo = colunas[1] || "Sem título";
       const subtitulo = colunas[2] || "";
-      const texto = colunas[3] || "";
 
       const card = document.createElement("a");
       card.className = "card";
@@ -97,9 +117,10 @@ async function carregarCards() {
 }
 
 carregarCards();
-         </script>
+</script>
 </body>
 </html>
+
 
 
 
