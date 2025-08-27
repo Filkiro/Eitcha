@@ -30,50 +30,69 @@
   </footer>
 
   <script>
-  async function carregarCards() {
-    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQqfAsgAVNog4YfI1rx104HGmPvy5EX6xGc9Jt8hhprLght6AC4qkEpXp5X3uDIgECTo1cTMXM50mZ_/pub?output=csv";
-    try {
-      const res = await fetch(csvUrl);
-      if (!res.ok) throw new Error("Erro ao carregar CSV: " + res.status);
-      const csvText = await res.text();
+async function carregarCards() {
+  const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQqfAsgAVNog4YfI1rx104HGmPvy5EX6xGc9Jt8hhprLght6AC4qkEpXp5X3uDIgECTo1cTMXM50mZ_/pub?output=csv";
 
-      const linhas = csvText.split("\n").filter(l => l.trim() !== "");
-      const container = document.getElementById("cards-container");
-
-      // Primeiro, adiciona o 10° card especial manualmente
-      const cardEspecial = document.createElement("a");
-      cardEspecial.href = "html/aniversario10.html";
-      cardEspecial.className = "card highlight";
-      cardEspecial.innerHTML = `
-        <h2 id="dez"><b>10° Aniversário</b></h2>
-        <p>Meu amor, finalmente atingimos 10 meses...</p>
-      `;
-      container.appendChild(cardEspecial);
-
-      // Agora adiciona os demais cards do CSV
-      linhas.slice(1).forEach((linha, index) => {
-        if (index === 9) return; // Pula o 10° do CSV para não duplicar
-        // Função simples para separar só na primeira vírgula
-        const colunas = linha.split(/,(.+)/);
-        const titulo = colunas[1] || "Sem título";
-        const resumo = colunas[2] || "";
-
-        const card = document.createElement("a");
-        card.className = "card";
-        card.href = `texto.html?id=${index}`;
-        card.innerHTML = `<h2>${titulo}</h2><p>${resumo}</p>`;
-        container.appendChild(card);
-      });
-
-    } catch (err) {
-      console.error(err);
+  // Função para separar CSV respeitando aspas
+  function parseCSVRow(row) {
+    const regex = /(".*?"|[^",\s]+)(?=\s*,|\s*$)/g;
+    const resultado = [];
+    let match;
+    while ((match = regex.exec(row))) {
+      let valor = match[1];
+      if (valor.startsWith('"') && valor.endsWith('"')) {
+        valor = valor.slice(1, -1);
+      }
+      resultado.push(valor);
     }
+    return resultado;
   }
 
-  carregarCards();
-    </script>
+  try {
+    const res = await fetch(csvUrl);
+    if (!res.ok) throw new Error("Erro ao carregar CSV: " + res.status);
+    const csvText = await res.text();
+
+    const linhas = csvText.split("\n").filter(l => l.trim() !== "");
+    const container = document.getElementById("cards-container");
+
+    // Primeiro, adiciona o 10° card especial manualmente
+    const cardEspecial = document.createElement("a");
+    cardEspecial.href = "html/aniversario10.html";
+    cardEspecial.className = "card highlight";
+    cardEspecial.innerHTML = `
+      <h2 id="dez"><b>10° Aniversário</b></h2>
+      <p>Meu amor, finalmente atingimos 10 meses...</p>
+    `;
+    container.appendChild(cardEspecial);
+
+    // Agora adiciona os demais cards do CSV
+    linhas.slice(1).forEach((linha, index) => {
+      if (index === 9) return; // Pula o 10° do CSV
+
+      const colunas = parseCSVRow(linha);
+      const timestamp = colunas[0] || "";
+      const titulo = colunas[1] || "Sem título";
+      const subtitulo = colunas[2] || "";
+      const texto = colunas[3] || "";
+
+      const card = document.createElement("a");
+      card.className = "card";
+      card.href = `texto.html?id=${index}`;
+      card.innerHTML = `<h2>${titulo}</h2><p>${subtitulo}</p>`;
+      container.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+carregarCards();
+  </script>
 </body>
 </html>
+
 
 
 
