@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Texto</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="text-page" id="conteudo">
+    <!-- Conteúdo carregado via script -->
+  </main>
+
+  <script>
+  async function carregarTexto() {
+    const params = new URLSearchParams(window.location.search);
+    const id = parseInt(params.get("id") || "0", 10);
+
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQqfAsgAVNog4YfI1rx104HGmPvy5EX6xGc9Jt8hhprLght6AC4qkEpXp5X3uDIgECTo1cTMXM50mZ_/pub?output=csv";
+    const res = await fetch(csvUrl);
+    const csvText = await res.text();
+    const linhas = csvText.split("\n").filter(l => l.trim() !== "");
+    const linha = linhas[id + 1]; // +1 para pular o cabeçalho
+
+    if (!linha) {
+      document.getElementById("conteudo").innerHTML = `<p>Texto não encontrado.</p>`;
+      return;
+    }
+
+    const [titulo, resumo, ...resto] = linha.split(",");
+    const textoCompleto = resto.join(",");
+
+    const container = document.getElementById("conteudo");
+    container.innerHTML = `
+      <a href="index.html" class="back">← Voltar</a>
+      <h1>${titulo}</h1>
+      <p>${textoCompleto.replace(/\n/g, "<br>")}</p>
+    `;
+  }
+
+  carregarTexto();
+  </script>
+</body>
+</html>
