@@ -98,18 +98,29 @@ async function carregarCards() {
 
     // Adiciona cards do CSV
     linhas.slice(1).forEach((linha, index) => {
-      if (index === 9) return; // Pula o 10° para não duplicar
+  if (index === 9) {
+    // cria o card especial
+    const cardEspecial = document.createElement("a");
+    cardEspecial.href = "html/aniversario10.html";
+    cardEspecial.className = "card highlight";
+    cardEspecial.innerHTML = `
+      <h2 id="dez"><b>10° Aniversário</b></h2>
+      <p>Meu amor, finalmente atingimos 10 meses...</p>
+    `;
+    container.appendChild(cardEspecial);
+  } else {
+    // cria card normal
+    const colunas = parseCSVColumns(linha);
+    const titulo = colunas[1] || "Sem título";
+    const subtitulo = colunas[2] || "";
 
-      const colunas = parseCSVColumns(linha);
-      const titulo = colunas[1] || "Sem título";
-      const subtitulo = colunas[2] || "";
-
-      const card = document.createElement("a");
-      card.className = "card";
-      card.href = `texto.html?id=${index}`;
-      card.innerHTML = `<h2>${titulo}</h2><p>${subtitulo}</p>`;
-      container.appendChild(card);
-    });
+    const card = document.createElement("a");
+    card.className = "card";
+    card.href = `texto.html?id=${index}`;
+    card.innerHTML = `<h2>${titulo}</h2><p>${subtitulo}</p>`;
+    container.appendChild(card);
+  }
+});
 
   } catch (err) {
     console.error(err);
@@ -120,6 +131,7 @@ carregarCards();
 </script>
 </body>
 </html>
+
 
 
 
