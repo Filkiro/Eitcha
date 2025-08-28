@@ -86,15 +86,6 @@ async function carregarCards() {
     const linhas = parseCSVRows(csvText).filter(l => l.trim() !== "");
     const container = document.getElementById("cards-container");
 
-    // Card especial do 10° mês
-    const cardEspecial = document.createElement("a");
-    cardEspecial.href = "html/aniversario10.html";
-    cardEspecial.className = "card highlight";
-    cardEspecial.innerHTML = `
-      <h2 id="dez"><b>10° Aniversário</b></h2>
-      <p>Meu amor, finalmente atingimos 10 meses...</p>
-    `;
-    container.appendChild(cardEspecial);
 
     // Adiciona cards do CSV
     linhas.slice(1).forEach((linha, index) => {
@@ -131,6 +122,7 @@ carregarCards();
 </script>
 </body>
 </html>
+
 
 
 
