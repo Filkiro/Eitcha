@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastre seu texto :D</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <a href="index.html">Voltar</a>
+    </header>
+
+    <form id="meuForm">
+  <input type="text" name="titulo" placeholder="Título" required>
+  <input type="text" name="subtitulo" placeholder="Subtítulo" required>
+  <textarea name="texto" placeholder="Texto" required></textarea>
+  <button type="submit">Enviar</button>
+</form>
+
+<script>
+  const scriptURL = "https://script.google.com/macros/s/AKfycbwT6aY7P95rVSXZwWyqrlGPqA35B8GJvOsP2fa_HHaeA1RksKX46xfUKWc-LcI5H3z16Q/exec"; 
+
+  document.getElementById("meuForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const data = {
+      titulo: this.titulo.value,
+      subtitulo: this.subtitulo.value,
+      texto: this.texto.value
+    };
+
+    fetch(scriptURL, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/json" }
+    })
+    .then(res => res.json())
+    .then(res => {
+      alert("Enviado com sucesso!");
+      console.log(res);
+    })
+    .catch(err => console.error("Erro:", err));
+  });
+</script>
+
+</body>
+</html>
